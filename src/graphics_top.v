@@ -27,8 +27,10 @@ module graphics_top (clk, reset, o_hsync, o_vsync, o_display_on, o_hpos, o_vpos)
 
     // GAME LOGIC
     output reg o_game_tick;
+    output reg o_game_tick_r;
 
     parameter V_DISPLAY       = 480; // vertical display height
+    parameter H_DISPLAY       = 640; // horizontal display width
 
     // ============== HVSYNC =============
     // TODO can change hpos to increment by 2 to reduce bits
@@ -102,8 +104,22 @@ module graphics_top (clk, reset, o_hsync, o_vsync, o_display_on, o_hpos, o_vpos)
     end
 
     // ============ GAME TICK ============
+    reg game_tick_r;
     always @(*) begin
-        o_game_tick = (vpos == V_DISPLAY);
+        o_game_tick = (vpos == V_DISPLAY && hpos == H_DISPLAY);
+        o_game_tick_r = game_tick_r;
+    end
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            game_tick_r <= 1'b0;
+        end else begin
+            if (o_game_tick) begin
+                game_tick_r <= 1'b1;
+            end else begin
+                game_tick_r <= 1'b0;
+            end
+
+        end 
     end
 
 endmodule
